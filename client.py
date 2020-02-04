@@ -1,6 +1,7 @@
 # -*- coding: UTF-8 -*-
 import requests
 import json
+from urllib.parse import quote
 
 class FeedlyClient(object):
     def __init__(self, **options):
@@ -62,14 +63,13 @@ class FeedlyClient(object):
         res = requests.get(url=quest_url, headers=headers)
         return res.json()
     
-    def get_feed_content(self,access_token,streamId,unreadOnly,newerThan):
+    def get_feed_content(self,access_token,streamId):
         '''return contents of a feed'''
         headers = {'Authorization': 'OAuth '+access_token}
         quest_url=self._get_endpoint('v3/streams/contents')
         params = dict(
                       streamId=streamId,
-                      unreadOnly=unreadOnly,
-                      newerThan=newerThan
+                      count=100
                       )
         res = requests.get(url=quest_url, params=params,headers=headers)
         return res.json()
@@ -87,19 +87,32 @@ class FeedlyClient(object):
                       )
         res = requests.post(url=quest_url, data=json.dumps(params), headers=headers)
         return res
-    
+        
     def save_for_later(self, access_token, user_id, entryIds):
         '''saved for later.entryIds is a list for entry id.'''
         headers = {'content-type': 'application/json',
                    'Authorization': 'OAuth ' + access_token
         }
-        request_url = self._get_endpoint('v3/tags') + '/user%2F' + user_id + '%2Ftag%2Fglobal.saved'
+        request_url = self._get_endpoint('v3/tags') + '/user/' + user_id + '/tag/global.saved'
         
         params = dict(
                       entryIds=entryIds
                       )
         res = requests.put(url=request_url, data=json.dumps(params), headers=headers)
-        return res  	
+        return res  
+    
+    def unsave_for_later(self, access_token, user_id, entryIds):
+        '''saved for later.entryIds is a list for entry id.'''
+        headers = {'content-type': 'application/json',
+                   'Authorization': 'OAuth ' + access_token
+        }
+        entries=','
+        
+        saved_for_later_tag = quote('user/{}/tag/global.saved'.format(user_id), safe='')
+        request_url = self._get_endpoint('v3/tags/')+saved_for_later_tag + '/' + quote(entries.join(entryIds), safe='')
+        
+        res = requests.delete(url=request_url, headers=headers)
+        return res     
 
     def _get_endpoint(self, path=None):
         url = "https://%s" % (self.service_host)
