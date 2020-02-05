@@ -63,14 +63,16 @@ class FeedlyClient(object):
         res = requests.get(url=quest_url, headers=headers)
         return res.json()
     
-    def get_feed_content(self,access_token,streamId):
+    def get_feed_content(self,access_token,streamId,max_items,continuation=None):
         '''return contents of a feed'''
         headers = {'Authorization': 'OAuth '+access_token}
         quest_url=self._get_endpoint('v3/streams/contents')
         params = dict(
                       streamId=streamId,
-                      count=100
+                      count=max_items
                       )
+        if continuation:
+            params['continuation'] = continuation
         res = requests.get(url=quest_url, params=params,headers=headers)
         return res.json()
     
