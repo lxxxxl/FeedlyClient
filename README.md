@@ -48,3 +48,19 @@ After getting a code, you may exchange it for an access token and a refresh toke
 		'''get user's subscription'''
 		feedly = get_feedly_client()
 		user_subscriptions = feedly.get_user_subscriptions(access_token)
+		
+## get stream entries
+	def get_entries(token, streamId, max_items_per_page):
+		get_feedly_client().get_feed_content(
+			token,
+			streamId,
+			m ax_items_per_page)
+
+## mark/unmark as 'Read Later'
+	# mark
+	save_for_later(access_token, user_id, entry['id'])
+	# unmark
+	unsave_for_later(access_token, user_id, entry['id']):
+	
+# FeedlyClientWrapper
+_fcw.py_ script performs download of all entries marked as 'Read Later'.
